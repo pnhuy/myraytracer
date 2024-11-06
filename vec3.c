@@ -1,4 +1,5 @@
 #include "vec3.h"
+#include "rt.h"
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -63,3 +64,22 @@ vec3 vec3_unit_vector(vec3 v) {
 bool vec3_equal(vec3 u, vec3 v) {
     return (u.x == v.x & u.y == v.y & u.z == v.z);
 }
+
+vec3 vec3_random() {
+    vec3 r = {random_double(), random_double(), random_double()};
+    return r;
+}
+
+vec3 vec3_random_range(double min, double max) {
+    vec3 r = {random_double_range(min,max), random_double_range(min,max), random_double_range(min,max)};
+}
+
+vec3 vec3_random_unit_vector() {
+    while (true) {
+        vec3 p = vec3_random_range(-1,1);
+        double lensq = vec3_length_squared(p);
+        if (1e-160 < lensq && lensq <= 1)
+            return vec3_div(p, vec3_length(p));
+    }
+}
+

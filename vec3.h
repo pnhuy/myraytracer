@@ -27,4 +27,10 @@ vec3 vec3_unit_vector(vec3 u);
 
 double vec3_dot(vec3 v1, vec3 v2);
 
+vec3 vec3_random();
+
+vec3 vec3_random_range(double min, double max);
+
+vec3 vec3_random_unit_vector();
+
 #endif
