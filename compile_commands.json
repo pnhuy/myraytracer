@@ -1,0 +1,44 @@
+[
+{
+  "directory": "/Users/hpham/Projects/playground/myraytracer/build",
+  "command": "/usr/bin/clang    -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.0.sdk -o CMakeFiles/vec3_lib.dir/vec3.c.o -c /Users/hpham/Projects/playground/myraytracer/vec3.c",
+  "file": "/Users/hpham/Projects/playground/myraytracer/vec3.c",
+  "output": "CMakeFiles/vec3_lib.dir/vec3.c.o"
+},
+{
+  "directory": "/Users/hpham/Projects/playground/myraytracer/build",
+  "command": "/usr/bin/clang    -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.0.sdk -o CMakeFiles/ray_lib.dir/ray.c.o -c /Users/hpham/Projects/playground/myraytracer/ray.c",
+  "file": "/Users/hpham/Projects/playground/myraytracer/ray.c",
+  "output": "CMakeFiles/ray_lib.dir/ray.c.o"
+},
+{
+  "directory": "/Users/hpham/Projects/playground/myraytracer/build",
+  "command": "/usr/bin/clang    -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.0.sdk -o CMakeFiles/color_lib.dir/color.c.o -c /Users/hpham/Projects/playground/myraytracer/color.c",
+  "file": "/Users/hpham/Projects/playground/myraytracer/color.c",
+  "output": "CMakeFiles/color_lib.dir/color.c.o"
+},
+{
+  "directory": "/Users/hpham/Projects/playground/myraytracer/build",
+  "command": "/usr/bin/clang    -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.0.sdk -o CMakeFiles/hittable.dir/hittable.c.o -c /Users/hpham/Projects/playground/myraytracer/hittable.c",
+  "file": "/Users/hpham/Projects/playground/myraytracer/hittable.c",
+  "output": "CMakeFiles/hittable.dir/hittable.c.o"
+},
+{
+  "directory": "/Users/hpham/Projects/playground/myraytracer/build",
+  "command": "/usr/bin/clang    -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.0.sdk -o CMakeFiles/hittable_list.dir/hittable_list.c.o -c /Users/hpham/Projects/playground/myraytracer/hittable_list.c",
+  "file": "/Users/hpham/Projects/playground/myraytracer/hittable_list.c",
+  "output": "CMakeFiles/hittable_list.dir/hittable_list.c.o"
+},
+{
+  "directory": "/Users/hpham/Projects/playground/myraytracer/build",
+  "command": "/usr/bin/clang    -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.0.sdk -o CMakeFiles/interval.dir/interval.c.o -c /Users/hpham/Projects/playground/myraytracer/interval.c",
+  "file": "/Users/hpham/Projects/playground/myraytracer/interval.c",
+  "output": "CMakeFiles/interval.dir/interval.c.o"
+},
+{
+  "directory": "/Users/hpham/Projects/playground/myraytracer/build",
+  "command": "/usr/bin/clang    -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.0.sdk -o CMakeFiles/main.dir/main.c.o -c /Users/hpham/Projects/playground/myraytracer/main.c",
+  "file": "/Users/hpham/Projects/playground/myraytracer/main.c",
+  "output": "CMakeFiles/main.dir/main.c.o"
+}
+]
