@@ -33,4 +33,6 @@ vec3 vec3_random_range(double min, double max);
 
 vec3 vec3_random_unit_vector();
 
+vec3 vec3_random_on_hemisphere(vec3 *normal);
+
 #endif

@@ -11,6 +11,7 @@ typedef struct camera {
     int image_width;
     int samples_per_pixel;
     double pixel_samples_scale;
+    int max_depth;
     int image_height;   // Rendered image height
     point3 center;      // Camera center
     point3 pixel00_loc; // Location of pixel 0, 0
@@ -18,7 +19,7 @@ typedef struct camera {
     vec3 pixel_delta_v; // Offset to pixel below
 } camera;
 
-camera camera_create(double aspect_ratio, int image_width, int samples_per_pixel) {
+camera camera_create(double aspect_ratio, int image_width, int samples_per_pixel, int max_depth) {
     camera c;
     c.aspect_ratio = aspect_ratio;
     c.image_width = image_width;
@@ -27,6 +28,8 @@ camera camera_create(double aspect_ratio, int image_width, int samples_per_pixel
 
     c.samples_per_pixel = samples_per_pixel;
     c.pixel_samples_scale = 1.0 / c.samples_per_pixel;
+
+    c.max_depth = max_depth;
 
     point3 center = {0, 0, 0};
     c.center = center;
@@ -56,13 +59,23 @@ camera camera_create(double aspect_ratio, int image_width, int samples_per_pixel
     return c;
 }
 
-color camera_ray_color(ray *r, hittable_list *world) {
+color camera_ray_color(camera *cam, ray *r, int depth, hittable_list *world) {
+    if (depth <= 0) {
+	color black = {0, 0, 0};
+	return black;
+    }
+    
     hit_record rec;
     color c = {1, 1, 1};
-    interval i = {0, INFINITY};
+    interval i = {0.001, INFINITY};
     if (hittable_list_hit(world, r, i, &rec)) {
-        vec3 result = vec3_scale(vec3_add(rec.normal, c), 0.5);
-        return result;
+        /* vec3 result = vec3_scale(vec3_add(rec.normal, c), 0.5); */
+        /* return result; */
+	vec3 normal = rec.normal;
+	/* vec3 direction = vec3_random_on_hemisphere(&normal); */
+	vec3 direction = vec3_add(rec.normal, vec3_random_unit_vector());
+	ray rr = {rec.p, direction};
+	return vec3_scale(camera_ray_color(cam, &rr, depth-1, world), 0.5);
     }
 
     vec3 unit_direction = vec3_unit_vector(r->direction);
@@ -105,7 +118,7 @@ void camera_render(camera *cam, hittable_list *world) {
             color pixel_color = {0, 0, 0};
             for (int sample = 0; sample < cam->samples_per_pixel; sample++) {
                 ray r = camera_get_ray(cam, i, j);
-                pixel_color = vec3_add(pixel_color, camera_ray_color(&r, world));
+                pixel_color = vec3_add(pixel_color, camera_ray_color(cam, &r, cam->max_depth, world));
             }
             write_color(vec3_scale(pixel_color, cam->pixel_samples_scale));
         }

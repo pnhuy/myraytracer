@@ -62,7 +62,7 @@ vec3 vec3_unit_vector(vec3 v) {
 }
 
 bool vec3_equal(vec3 u, vec3 v) {
-    return (u.x == v.x & u.y == v.y & u.z == v.z);
+    return (u.x == v.x && u.y == v.y && u.z == v.z);
 }
 
 vec3 vec3_random() {
@@ -72,6 +72,7 @@ vec3 vec3_random() {
 
 vec3 vec3_random_range(double min, double max) {
     vec3 r = {random_double_range(min,max), random_double_range(min,max), random_double_range(min,max)};
+    return r;
 }
 
 vec3 vec3_random_unit_vector() {
@@ -83,3 +84,11 @@ vec3 vec3_random_unit_vector() {
     }
 }
 
+vec3 vec3_random_on_hemisphere(vec3 *normal) {
+    vec3 on_unit_sphere = vec3_random_unit_vector();
+    if (vec3_dot(on_unit_sphere, *normal) > 0.0) {
+	return on_unit_sphere;
+    } else {
+	return vec3_scale(on_unit_sphere, -1);
+    }
+}

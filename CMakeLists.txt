@@ -3,6 +3,7 @@ set(CMAKE_C_COMPILER "clang")
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 project(raytracing C)
 
+add_library(rt_lib rt.c)
 add_library(vec3_lib vec3.c)
 add_library(ray_lib ray.c)
 add_library(color_lib color.c)
@@ -11,4 +12,4 @@ add_library(hittable_list hittable_list.c)
 add_library(interval interval.c)
 
 add_executable(main main.c)
-target_link_libraries(main PRIVATE vec3_lib ray_lib color_lib hittable hittable_list interval)
+target_link_libraries(main PRIVATE rt_lib vec3_lib ray_lib color_lib hittable hittable_list interval)

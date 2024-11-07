@@ -25,8 +25,9 @@ int main() {
     double aspect_ratio = 16.0 / 9.0;
     int image_width = 400;
     int samples_per_pixel = 100;
+    int max_depth = 50;
 
-    camera cam = camera_create(aspect_ratio, image_width, samples_per_pixel);
+    camera cam = camera_create(aspect_ratio, image_width, samples_per_pixel, max_depth);
     camera_render(&cam, &world);
 
     return 0;
