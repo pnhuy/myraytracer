@@ -1,11 +1,11 @@
 #include "vec3.h"
 #include "rt.h"
 #include <math.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdbool.h>
 
-char* vec3_repl(vec3 v) {
+char *vec3_repl(vec3 v) {
     char *result = malloc(50 * sizeof(char)); // Allocate enough memory for the string
     if (result == NULL) {
         return NULL; // Handle memory allocation failure
@@ -42,7 +42,7 @@ vec3 vec3_scale(vec3 v1, double k) {
 }
 
 vec3 vec3_div(vec3 v, double k) {
-    return vec3_scale(v, 1/k);
+    return vec3_scale(v, 1 / k);
 }
 
 double vec3_dot(vec3 v1, vec3 v2) {
@@ -51,10 +51,18 @@ double vec3_dot(vec3 v1, vec3 v2) {
 
 vec3 vec3_cross(vec3 u, vec3 v) {
     vec3 c;
-    c.x = u.y*v.z - u.z*v.y;
-    c.y = u.z*v.x - u.x*v.z;
-    c.z = u.x*v.y - u.y*v.x;
+    c.x = u.y * v.z - u.z * v.y;
+    c.y = u.z * v.x - u.x * v.z;
+    c.z = u.x * v.y - u.y * v.x;
     return c;
+}
+
+vec3 vec3_hadamard_prod(vec3 u, vec3 v) {
+    vec3 r;
+    r.x = u.x * v.x;
+    r.y = u.y * v.y;
+    r.z = u.z * v.z;
+    return r;
 }
 
 vec3 vec3_unit_vector(vec3 v) {
@@ -71,13 +79,13 @@ vec3 vec3_random() {
 }
 
 vec3 vec3_random_range(double min, double max) {
-    vec3 r = {random_double_range(min,max), random_double_range(min,max), random_double_range(min,max)};
+    vec3 r = {random_double_range(min, max), random_double_range(min, max), random_double_range(min, max)};
     return r;
 }
 
 vec3 vec3_random_unit_vector() {
     while (true) {
-        vec3 p = vec3_random_range(-1,1);
+        vec3 p = vec3_random_range(-1, 1);
         double lensq = vec3_length_squared(p);
         if (1e-160 < lensq && lensq <= 1)
             return vec3_div(p, vec3_length(p));
@@ -87,8 +95,17 @@ vec3 vec3_random_unit_vector() {
 vec3 vec3_random_on_hemisphere(vec3 *normal) {
     vec3 on_unit_sphere = vec3_random_unit_vector();
     if (vec3_dot(on_unit_sphere, *normal) > 0.0) {
-	return on_unit_sphere;
+        return on_unit_sphere;
     } else {
-	return vec3_scale(on_unit_sphere, -1);
+        return vec3_scale(on_unit_sphere, -1);
     }
+}
+
+bool vec3_near_zero(vec3 e) {
+    double s = 1e-8;
+    return (fabs(e.x) < s) && (fabs(e.y) < s) && (fabs(e.z) < s);
+}
+
+vec3 vec3_reflect(vec3 v, vec3 n) {
+    return vec3_subtract(v, vec3_scale(n, 2 * vec3_dot(v, n)));
 }

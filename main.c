@@ -12,14 +12,35 @@ int main() {
     // World
     hittable_list world = hittable_list_create();
 
-    point3 c1 = {0, 0, -1};
-    sphere s1 = sphere_init(c1, 0.5);
+    color color_ground = {0.8, 0.8, 0.0};
+    material material_ground = {lambertian, color_ground};
 
-    point3 c2 = {0, -100.5, -1};
-    sphere s2 = sphere_init(c2, 100);
+    color color_center = {0.1, 0.2, 0.5};
+    material material_center = {lambertian, color_center};
 
-    hittable_list_add(&world, &s2);
-    hittable_list_add(&world, &s1);
+    color color_left = {0.8, 0.8, 0.8};
+    material material_left = {metal, color_left};
+
+    color color_right = {0.8, 0.6, 0.2};
+    material material_right = {metal, color_right};    
+
+    point3 point_ground = {0, -100.5, -1.0};
+    sphere sphere_ground = sphere_init(point_ground, 100, &material_ground);
+
+    point3 point_center = {0, 0, -1.2};
+    sphere sphere_center = sphere_init(point_center, 0.5, &material_center);
+
+    point3 point_left = {-1.0, 0, -1.0};
+    sphere sphere_left = sphere_init(point_left, 0.5, &material_left);
+
+    point3 point_right = {1.0, 0, -1.0};
+    sphere sphere_right = sphere_init(point_right, 0.5, &material_right);
+
+
+    hittable_list_add(&world, &sphere_ground);
+    hittable_list_add(&world, &sphere_right);
+    hittable_list_add(&world, &sphere_center);
+    hittable_list_add(&world, &sphere_left);
 
     // Camera
     double aspect_ratio = 16.0 / 9.0;

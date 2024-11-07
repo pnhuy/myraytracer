@@ -2,6 +2,7 @@
 #define HITTABLE_LIST_H
 
 #include "hittable.h"
+#include "sphere.h"
 #include "ray.h"
 #include <stdbool.h>
 #include <stdlib.h>

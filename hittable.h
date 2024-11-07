@@ -1,18 +1,32 @@
 #ifndef HITTABLE_H
 #define HITTABLE_H
 
+#include "color.h"
 #include "ray.h"
-#include "interval.h"
-
 #include <stdbool.h>
-#include <math.h>
 #include <stdio.h>
+
+/*
+ * HIT RECORD
+ */
+
+typedef enum material_type {
+    lambertian,
+    metal,
+} material_type;
+
+typedef struct material {
+    material_type type;
+    color albedo;
+} material;
 
 typedef struct hit_record {
     point3 p;
     vec3 normal;
     double t;
     bool front_face;
+    material mat;
+    bool (*scatter)(ray *r_in, struct hit_record *rec, color *attenuation, ray *scattered);
 } hit_record;
 
 void set_face_normal(hit_record *h, const ray *r, vec3 *outward_normal) {
@@ -20,48 +34,38 @@ void set_face_normal(hit_record *h, const ray *r, vec3 *outward_normal) {
     h->normal = h->front_face ? *outward_normal : vec3_scale(*outward_normal, -1);
 }
 
-typedef struct sphere {
-    bool (*hit)(struct sphere *h, ray *r, interval ray_t, hit_record *rec);
-    point3 center;
-    double radius;
-} sphere;
+/*
+ * MATERIAL
+ */
 
-bool sphere_hit(sphere *s, struct ray *r, interval ray_t, struct hit_record *rec) {
-    vec3 oc = vec3_subtract(s->center, r->origin);
-    double a = vec3_length_squared(r->direction);
-    double h = vec3_dot(r->direction, oc);
-    double c = vec3_length_squared(oc) - s->radius * s->radius;
+bool lambertian_scatter(ray *r_in, hit_record *rec, color *attenuation, ray *scattered) {
+    vec3 scatter_direction = vec3_add(rec->normal, vec3_random_unit_vector());
 
-    double discriminant = h * h - a * c;
-    if (discriminant < 0)
-        return false;
-    
-    double sqrtd = sqrt(discriminant);
-
-    double root = (h - sqrtd) / a;
-    if (!interval_surrounds(&ray_t, root)) {
-        root = (h + sqrtd) / a;
-        if (!interval_surrounds(&ray_t, root)) {
-            return false;
-        }
+    if (vec3_near_zero(scatter_direction)) {
+        scatter_direction = rec->normal;
     }
 
-    rec->t = root;
-    rec->p = ray_at(r, root);
-    vec3 outward_normal = vec3_div(vec3_subtract(rec->p, s->center), s->radius);
-    set_face_normal(rec, r, &outward_normal);
-
+    ray sctr = {rec->p, scatter_direction};
+    *scattered = sctr;
+    *attenuation = rec->mat.albedo;
     return true;
 }
 
-sphere sphere_init(point3 center, double radius) {
-    sphere s;
+bool metal_scatter(ray *r_in, hit_record *rec, color *attenuation, ray *scattered) {
+    vec3 reflected = vec3_reflect(r_in->direction, rec->normal);
+    ray r = {rec->p, reflected};
+    *scattered = r;
+    *attenuation = rec->mat.albedo;
+    return true;
+}
 
-    s.center = center;
-    s.radius = radius;
-    s.hit = sphere_hit;
-
-    return s;
+void set_material(material *mat, hit_record *rec) {
+    rec->mat = *mat;
+    if (mat->type == lambertian) {
+        rec->scatter = &lambertian_scatter;
+    } else if (mat->type == metal) {
+        rec->scatter = &metal_scatter;
+    }
 }
 
 #endif

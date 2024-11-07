@@ -2,9 +2,11 @@
 #define CAMERA_H
 
 #include "color.h"
+#include "hittable.h"
 #include "hittable_list.h"
 #include "rt.h"
 #include "vec3.h"
+#include <stdio.h>
 
 typedef struct camera {
     double aspect_ratio;
@@ -60,22 +62,24 @@ camera camera_create(double aspect_ratio, int image_width, int samples_per_pixel
 }
 
 color camera_ray_color(camera *cam, ray *r, int depth, hittable_list *world) {
+    color black = {0, 0, 0};
+    color white = {1, 1, 1};
     if (depth <= 0) {
-	color black = {0, 0, 0};
-	return black;
+        return black;
     }
-    
+
     hit_record rec;
     color c = {1, 1, 1};
     interval i = {0.001, INFINITY};
     if (hittable_list_hit(world, r, i, &rec)) {
-        /* vec3 result = vec3_scale(vec3_add(rec.normal, c), 0.5); */
-        /* return result; */
-	vec3 normal = rec.normal;
-	/* vec3 direction = vec3_random_on_hemisphere(&normal); */
-	vec3 direction = vec3_add(rec.normal, vec3_random_unit_vector());
-	ray rr = {rec.p, direction};
-	return vec3_scale(camera_ray_color(cam, &rr, depth-1, world), 0.5);
+        ray scattered;
+        color attenuation;
+
+        if ((*(rec.scatter))(r, &rec, &attenuation, &scattered)) {
+            vec3 r = vec3_hadamard_prod(attenuation, camera_ray_color(cam, &scattered, depth - 1, world));
+	    return r;
+        }
+        return white;
     }
 
     vec3 unit_direction = vec3_unit_vector(r->direction);
