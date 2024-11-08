@@ -45,16 +45,14 @@ bool lambertian_scatter(ray *r_in, hit_record *rec, color *attenuation, ray *sca
         scatter_direction = rec->normal;
     }
 
-    ray sctr = {rec->p, scatter_direction};
-    *scattered = sctr;
+    *scattered = (ray){rec->p, scatter_direction};
     *attenuation = rec->mat.albedo;
     return true;
 }
 
 bool metal_scatter(ray *r_in, hit_record *rec, color *attenuation, ray *scattered) {
     vec3 reflected = vec3_reflect(r_in->direction, rec->normal);
-    ray r = {rec->p, reflected};
-    *scattered = r;
+    *scattered = (ray){rec->p, reflected};
     *attenuation = rec->mat.albedo;
     return true;
 }

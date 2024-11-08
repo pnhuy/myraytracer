@@ -63,23 +63,22 @@ camera camera_create(double aspect_ratio, int image_width, int samples_per_pixel
 
 color camera_ray_color(camera *cam, ray *r, int depth, hittable_list *world) {
     color black = {0, 0, 0};
-    color white = {1, 1, 1};
     if (depth <= 0) {
         return black;
     }
 
     hit_record rec;
-    color c = {1, 1, 1};
     interval i = {0.001, INFINITY};
+
     if (hittable_list_hit(world, r, i, &rec)) {
         ray scattered;
         color attenuation;
 
         if ((*(rec.scatter))(r, &rec, &attenuation, &scattered)) {
-            vec3 r = vec3_hadamard_prod(attenuation, camera_ray_color(cam, &scattered, depth - 1, world));
-	    return r;
+            vec3 rc = vec3_hadamard_prod(attenuation, camera_ray_color(cam, &scattered, depth - 1, world));
+	        return rc;
         }
-        return white;
+        return black;
     }
 
     vec3 unit_direction = vec3_unit_vector(r->direction);

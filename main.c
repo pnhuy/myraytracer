@@ -38,9 +38,9 @@ int main() {
 
 
     hittable_list_add(&world, &sphere_ground);
-    hittable_list_add(&world, &sphere_right);
     hittable_list_add(&world, &sphere_center);
     hittable_list_add(&world, &sphere_left);
+    hittable_list_add(&world, &sphere_right);
 
     // Camera
     double aspect_ratio = 16.0 / 9.0;

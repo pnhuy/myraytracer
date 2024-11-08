@@ -47,7 +47,7 @@ bool hittable_list_hit(hittable_list *hl, ray *r, interval ray_t, hit_record *re
 
     for (int i = 0; i < hl->size; i++) {
         sphere *s = hl->objects[i];
-        if (s->hit(s, r, ray_t, temp_rec)) {
+        if (s->hit(s, r, (interval){ray_t.min, closest_so_far}, temp_rec)) {
             hit_anything = true;
             closest_so_far = temp_rec->t;
             *rec = *temp_rec;
