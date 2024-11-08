@@ -18,6 +18,7 @@ typedef enum material_type {
 typedef struct material {
     material_type type;
     color albedo;
+    double fuzz;
 } material;
 
 typedef struct hit_record {
@@ -52,9 +53,10 @@ bool lambertian_scatter(ray *r_in, hit_record *rec, color *attenuation, ray *sca
 
 bool metal_scatter(ray *r_in, hit_record *rec, color *attenuation, ray *scattered) {
     vec3 reflected = vec3_reflect(r_in->direction, rec->normal);
+    reflected = vec3_add(vec3_unit_vector(reflected), vec3_scale(vec3_random_unit_vector(), rec->mat.fuzz));
     *scattered = (ray){rec->p, reflected};
     *attenuation = rec->mat.albedo;
-    return true;
+    return (vec3_dot(scattered->direction, rec->normal) > 0);
 }
 
 void set_material(material *mat, hit_record *rec) {
