@@ -16,3 +16,7 @@ double random_double() {
 double degrees_to_radians(double degrees) {
     return degrees * pi / 180.0;
 }
+
+double radians_to_degrees(double r) {
+    return r * 180.0 / pi;
+}

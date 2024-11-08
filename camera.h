@@ -62,23 +62,24 @@ camera camera_create(double aspect_ratio, int image_width, int samples_per_pixel
 }
 
 color camera_ray_color(camera *cam, ray *r, int depth, hittable_list *world) {
-    color black = {0, 0, 0};
     if (depth <= 0) {
-        return black;
+        return (color){0, 0, 0};
     }
 
     hit_record rec;
     interval i = {0.001, INFINITY};
 
     if (hittable_list_hit(world, r, i, &rec)) {
+        // fprintf(stderr, "Hit at Depth %d\n", depth);
         ray scattered;
         color attenuation;
 
         if ((*(rec.scatter))(r, &rec, &attenuation, &scattered)) {
-            vec3 rc = vec3_hadamard_prod(attenuation, camera_ray_color(cam, &scattered, depth - 1, world));
-	        return rc;
+            color c = camera_ray_color(cam, &scattered, depth - 1, world);
+            vec3 rc = vec3_hadamard_prod(attenuation, c);
+            return rc;
         }
-        return black;
+        return (color){0, 0, 0};
     }
 
     vec3 unit_direction = vec3_unit_vector(r->direction);
@@ -123,7 +124,9 @@ void camera_render(camera *cam, hittable_list *world) {
                 ray r = camera_get_ray(cam, i, j);
                 pixel_color = vec3_add(pixel_color, camera_ray_color(cam, &r, cam->max_depth, world));
             }
-            write_color(vec3_scale(pixel_color, cam->pixel_samples_scale));
+            color c = vec3_scale(pixel_color, cam->pixel_samples_scale);
+            printf("# %d %d\n", i, j);
+            write_color(c);
         }
     }
     fprintf(stderr, "\rDone.                 \n");

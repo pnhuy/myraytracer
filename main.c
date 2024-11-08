@@ -19,10 +19,11 @@ int main() {
     material material_center = {lambertian, color_center};
 
     color color_left = {0.8, 0.8, 0.8};
-    material material_left = {metal, color_left, 0.3};
+    // material material_left = {metal, color_left, 0.3};
+    material material_left = {dielectric, color_left, 1.50, 1.50};
 
     color color_right = {0.8, 0.6, 0.2};
-    material material_right = {metal, color_right, 1.0};    
+    material material_right = {metal, color_right, 0.0};    
 
     point3 point_ground = {0, -100.5, -1.0};
     sphere sphere_ground = sphere_init(point_ground, 100, &material_ground);

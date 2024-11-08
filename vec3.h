@@ -44,4 +44,8 @@ bool vec3_near_zero(vec3 u);
 
 vec3 vec3_reflect(vec3 v, vec3 n);
 
+vec3 vec3_negate(vec3 u);
+
+vec3 vec3_refract(vec3 uv, vec3 n, double etai_over_etat);
+
 #endif
