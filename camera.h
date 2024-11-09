@@ -6,6 +6,7 @@
 #include "hittable_list.h"
 #include "rt.h"
 #include "vec3.h"
+#include <math.h>
 #include <stdio.h>
 
 typedef struct camera {
@@ -14,36 +15,60 @@ typedef struct camera {
     int samples_per_pixel;
     double pixel_samples_scale;
     int max_depth;
-    int image_height;   // Rendered image height
-    point3 center;      // Camera center
-    point3 pixel00_loc; // Location of pixel 0, 0
-    vec3 pixel_delta_u; // Offset to pixel to the right
-    vec3 pixel_delta_v; // Offset to pixel below
+    double vfov;
+
+    point3 lookfrom; // Point camera is looking from
+    point3 lookat;   // Point camera is looking at
+    vec3   vup;      // Camera-relative "up" direction
+
+    double defocus_angle; // Variation angle of rays through each pixel
+    double focus_dist;    // Distance from camera lookfrom point to plane of perfect focus
+    
+    int image_height;    // Rendered image height
+    point3 center;       // Camera center
+    point3 pixel00_loc;  // Location of pixel 0, 0
+    vec3 pixel_delta_u;  // Offset to pixel to the right
+    vec3 pixel_delta_v;  // Offset to pixel below
+    vec3 u, v, w;        // Camera frame basis vectors
+    vec3 defocus_disk_u; // Defocus disk horizontal radius
+    vec3 defocus_disk_v; // Defocus disk vertical radius
 } camera;
 
-camera camera_create(double aspect_ratio, int image_width, int samples_per_pixel, int max_depth) {
+camera camera_create(double aspect_ratio, int image_width, int samples_per_pixel, int max_depth, double vfov, point3 lookfrom, point3 lookat, vec3 vup, double defocus_angle, double focus_dist) {
     camera c;
     c.aspect_ratio = aspect_ratio;
     c.image_width = image_width;
     c.image_height = (int)(c.image_width / c.aspect_ratio);
     c.image_height = (c.image_height < 1) ? 1 : c.image_height;
+    c.vfov = vfov;
+    c.lookfrom = lookfrom;
+    c.lookat = lookat;
+    c.vup = vup;
+    c.defocus_angle = defocus_angle;
+    c.focus_dist = focus_dist;
 
     c.samples_per_pixel = samples_per_pixel;
     c.pixel_samples_scale = 1.0 / c.samples_per_pixel;
 
     c.max_depth = max_depth;
 
-    point3 center = {0, 0, 0};
-    c.center = center;
+    c.center = c.lookfrom;
 
     // Determine viewport dimensions
-    double focal_length = 1.0;
-    double viewport_height = 2.0;
+    /* double focal_length = vec3_length(vec3_subtract(c.lookfrom, c.lookat)); */
+    double theta = degrees_to_radians(vfov);
+    double h = tan(theta/2);
+    double viewport_height = 2 * h * c.focus_dist;
     double viewport_width = viewport_height * ((double)(c.image_width) / c.image_height);
 
+    // Calculate the u,v,w unit basis vectors for the camera coordinate frame.
+    vec3 w = vec3_unit_vector(vec3_subtract(c.lookfrom, c.lookat));
+    vec3 u = vec3_unit_vector(vec3_cross(c.vup, w));
+    vec3 v = vec3_cross(w, u);
+
     // Calculate the vectors across the horizontal and down the vertical viewport edges.
-    vec3 viewport_u = {viewport_width, 0, 0};
-    vec3 viewport_v = {0, -viewport_height, 0};
+    vec3 viewport_u = vec3_scale(u, viewport_width);
+    vec3 viewport_v = vec3_scale(vec3_negate(v), viewport_height);
 
     // Calculate the horizontal and vertical delta vectors from pixel to pixel.
     c.pixel_delta_u = vec3_div(viewport_u, c.image_width);
@@ -51,12 +76,16 @@ camera camera_create(double aspect_ratio, int image_width, int samples_per_pixel
 
     // Calculate the location of the upper left pixel.
     vec3 viewport_upper_left = c.center;
-    vec3 focal_vec3 = {0, 0, focal_length};
+    vec3 focal_vec3 = vec3_scale(w, c.focus_dist);
     viewport_upper_left = vec3_subtract(viewport_upper_left, focal_vec3);
     viewport_upper_left = vec3_subtract(viewport_upper_left, vec3_div(viewport_u, 2.0));
     viewport_upper_left = vec3_subtract(viewport_upper_left, vec3_div(viewport_v, 2.0));
     c.pixel00_loc = vec3_add(viewport_upper_left,
                              vec3_scale(vec3_add(c.pixel_delta_u, c.pixel_delta_v), 0.5));
+
+    double defocus_radius = c.focus_dist * tan(degrees_to_radians(c.defocus_angle / 2));
+    c.defocus_disk_u = vec3_scale(u, defocus_radius);
+    c.defocus_disk_v = vec3_scale(v, defocus_radius);
 
     return c;
 }
@@ -96,8 +125,17 @@ vec3 camera_sample_square() {
     return sam;
 }
 
+point3 defocus_disk_sample(camera *cam) {
+    // Returns a random point in the camera defocus disk.
+    point3 p = random_in_unit_disk();
+    point3 x = (cam->center);
+    x = vec3_add(x, (vec3_scale(cam->defocus_disk_u, p.x)));
+    x = vec3_add(x, (vec3_scale(cam->defocus_disk_v, p.y)));
+    return x;
+}
+
 ray camera_get_ray(camera *cam, int i, int j) {
-    // Construct a camera ray originating from the origin and directed at randomly sampled
+    // Construct a camera ray originating from the defocus disk and directed at randomly sampled
     // point around the pixel location i, j.
 
     vec3 offset = camera_sample_square();
@@ -105,7 +143,7 @@ ray camera_get_ray(camera *cam, int i, int j) {
     pixel_sample = vec3_add(pixel_sample, vec3_scale(cam->pixel_delta_u, (i + offset.x)));
     pixel_sample = vec3_add(pixel_sample, vec3_scale(cam->pixel_delta_v, (j + offset.y)));
 
-    point3 ray_origin = cam->center;
+    point3 ray_origin = (cam->defocus_angle <= 0) ?  cam->center : defocus_disk_sample(cam);
     vec3 ray_direction = vec3_subtract(pixel_sample, ray_origin);
 
     ray r = {ray_origin, ray_direction};
@@ -125,7 +163,6 @@ void camera_render(camera *cam, hittable_list *world) {
                 pixel_color = vec3_add(pixel_color, camera_ray_color(cam, &r, cam->max_depth, world));
             }
             color c = vec3_scale(pixel_color, cam->pixel_samples_scale);
-            printf("# %d %d\n", i, j);
             write_color(c);
         }
     }

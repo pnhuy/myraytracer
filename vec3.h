@@ -48,4 +48,6 @@ vec3 vec3_negate(vec3 u);
 
 vec3 vec3_refract(vec3 uv, vec3 n, double etai_over_etat);
 
+vec3 random_in_unit_disk();
+
 #endif
