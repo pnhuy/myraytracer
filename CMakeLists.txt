@@ -1,5 +1,4 @@
 cmake_minimum_required(VERSION 3.10)
-set(CMAKE_C_COMPILER "clang")
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 project(raytracing C)
 
@@ -13,4 +12,4 @@ add_library(hittable_list hittable_list.c)
 add_library(interval interval.c)
 
 add_executable(main main.c)
-target_link_libraries(main PRIVATE rt_lib vec3_lib ray_lib color_lib hittable sphere hittable_list interval)
+target_link_libraries(main PRIVATE rt_lib vec3_lib ray_lib color_lib hittable sphere hittable_list interval m)

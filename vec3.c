@@ -122,3 +122,11 @@ vec3 vec3_refract(const vec3 uv, const vec3 n, double etai_over_etat) {
     vec3 r = vec3_add(r_out_perp, r_out_parallel);
     return r;
 }
+
+vec3 random_in_unit_disk() {
+    while (true) {
+        vec3 p = (vec3){random_double_range(-1,1), random_double_range(-1,1), 0};
+        if (vec3_length_squared(p) < 1)
+            return p;
+    }
+}

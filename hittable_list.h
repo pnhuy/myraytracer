@@ -7,7 +7,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
-#define MAX_HL 100
+#define MAX_HL 9999
 
 typedef struct hittable_list {
     int size;
