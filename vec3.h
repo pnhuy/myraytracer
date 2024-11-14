@@ -2,6 +2,7 @@
 #define VEC3_H
 
 #include <stdbool.h>
+
 typedef struct vec3 {
     double x;
     double y;
